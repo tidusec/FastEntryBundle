@@ -1,13 +1,4 @@
-controllers:
-    resource: '@DemoBundle/Controller/'
-    type: attribute
-    prefix: /{_locale}
-    requirements:
-        _locale: '%app_locales%'
-    defaults:
-        _locale: '%locale%'
-
-demo.api:
-    resource: "@DemoBundle/API/"
-    type: attribute
-    prefix: /api
+# Resources/config/routes.yaml
+fast_entry:
+    resource: '@FastEntryBundle/Controller/'
+    type: annotation

@@ -1,7 +1,7 @@
 {
     "name": "keleo/demo-plugin",
     "description": "Showcase plugin for Kimai, with demos for many extension points within the core",
-    "homepage": "https://github.com/Keleo/DemoBundle",
+    "homepage": "https://github.com/Keleo/FastEntryBundle",
     "type": "kimai-plugin",
     "version": "2.7.0",
     "keywords": [
@@ -23,7 +23,7 @@
     },
     "autoload": {
         "psr-4": {
-            "KimaiPlugin\\DemoBundle\\": ""
+            "KimaiPlugin\\FastEntryBundle\\": ""
         }
     },
     "config": {

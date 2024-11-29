@@ -1,7 +1,7 @@
 
 # Kimai - Developer Demo Bundle
 
-[![CI Status](https://github.com/Keleo/DemoBundle/workflows/CI/badge.svg)](https://github.com/Keleo/DemoBundle/actions)
+[![CI Status](https://github.com/Keleo/FastEntryBundle/workflows/CI/badge.svg)](https://github.com/Keleo/FastEntryBundle/actions)
 
 A plugin to showcase some developer options within Kimai.
 
@@ -48,14 +48,14 @@ This plugin is compatible with the following Kimai releases:
 
 You find the most notable changes between the versions in the file [CHANGELOG.md](CHANGELOG.md).
 
-Download and extract the [compatible release](https://github.com/Keleo/DemoBundle/releases) in `var/plugins/` (see [plugin docs](https://www.kimai.org/documentation/plugin-management.html)).
+Download and extract the [compatible release](https://github.com/Keleo/FastEntryBundle/releases) in `var/plugins/` (see [plugin docs](https://www.kimai.org/documentation/plugin-management.html)).
 
 The file structure needs to look like this afterward:
 
 ```
 var/plugins/
-├── DemoBundle
-│   ├── DemoBundle.php
+├── FastEntryBundle
+│   ├── FastEntryBundle.php
 |   └ ... more files and directories follow here ... 
 ```
 

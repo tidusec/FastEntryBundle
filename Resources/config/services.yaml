@@ -1,21 +1,10 @@
+# Resources/config/services.yaml
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-        public: false
-        bind:
-            $dataDirectory: "%kimai.data_dir%"
-
-    KimaiPlugin\DemoBundle\:
+    KimaiPlugin\FastEntryBundle\:
         resource: '../../*'
-        exclude:
-            - '../../Migrations/'
-            - '../../Resources/'
+        exclude: '../../{DependencyInjection,Entity,Tests,Resources}'
 
-    KimaiPlugin\DemoBundle\Controller\:
-        resource: '../../Controller'
-        tags: ['controller.service_arguments']
-
-    KimaiPlugin\DemoBundle\EventSubscriber\ActionsSubscriber:
+    KimaiPlugin\FastEntryBundle\Controller\FastEntryController:
         arguments:
-            $environment: '%kernel.environment%'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $timesheetRepository: '@App\Repository\TimesheetRepository'
