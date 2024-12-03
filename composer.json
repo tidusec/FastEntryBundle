@@ -1,6 +1,6 @@
 {
     "name": "keleo/demo-plugin",
-    "description": "Showcase plugin for Kimai, with demos for many extension points within the core",
+    "description": "Fast entry time bundle which will help you enter times faster!",
     "homepage": "https://github.com/Keleo/FastEntryBundle",
     "type": "kimai-plugin",
     "version": "2.7.0",
@@ -18,7 +18,7 @@
     "extra": {
         "kimai": {
             "require": 21500,
-            "name": "Developer demo"
+            "name": "FastEntry Plugin"
         }
     },
     "autoload": {
