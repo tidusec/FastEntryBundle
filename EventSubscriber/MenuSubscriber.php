@@ -22,20 +22,12 @@ final class MenuSubscriber implements EventSubscriberInterface
 
     public function onMenuConfigure(ConfigureMainMenuEvent $event): void
     {
-        $auth = $this->security;
-
-        if (!$auth->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-            return;
-        }
-
-        if ($auth->isGranted('demo')) {
-            $event->getMenu()->addChild(
-                new MenuItemModel('fast_entry',
-                    'Fast Entry',
-                    'fast_entry',
-                    [],
-                    'fas fa-bolt')
-            );
-        }
+        $event->getMenu()->addChild(
+            new MenuItemModel('fast_entry',
+                'Fast Entry',
+                'fast_entry',
+                [],
+                'fas fa-bolt')
+        );
     }
 }
