@@ -1,8 +1,7 @@
-# Resources/config/services.yaml
 services:
     KimaiPlugin\FastEntryBundle\:
         resource: '../../*'
-        exclude: '../../{DependencyInjection,Entity,Tests,Resources}'
+        exclude: '../../{DependencyInjection,Entity,Tests,Resources,vendor}'
 
     KimaiPlugin\FastEntryBundle\Controller\FastEntryController:
         arguments:

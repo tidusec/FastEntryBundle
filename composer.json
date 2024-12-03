@@ -23,7 +23,7 @@
     },
     "autoload": {
         "psr-4": {
-            "KimaiPlugin\\FastEntryBundle\\": ""
+            "KimaiPlugin\\FastEntryBundle\\": "src/"
         }
     },
     "config": {
