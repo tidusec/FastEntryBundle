@@ -1,13 +1,5 @@
 <?php
 
-/*
- * This file is part of the "FastEntryBundle" for Kimai.
- * All rights reserved by Kevin Papst (www.kevinpapst.de).
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace KimaiPlugin\FastEntryBundle\EventSubscriber;
 
 use App\Event\ConfigureMainMenuEvent;
@@ -31,22 +23,18 @@ final class MenuSubscriber implements EventSubscriberInterface
     public function onMenuConfigure(ConfigureMainMenuEvent $event): void
     {
         $auth = $this->security;
+
         if (!$auth->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return;
         }
 
-        $menu = $event->getMenu();
-        $timeTracking = $menu->getChild('timesheet');
-
-        if ($timeTracking !== null) {
-            $timeTracking->addChild(
-                new MenuItemModel(
-                    'fast_entry',
+        if ($auth->isGranted('demo')) {
+            $event->getMenu()->addChild(
+                new MenuItemModel('fast_entry',
                     'Fast Entry',
                     'fast_entry',
                     [],
-                    'fas fa-bolt'
-                )
+                    'fas fa-bolt')
             );
         }
     }

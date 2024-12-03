@@ -1,9 +1,19 @@
 services:
-    KimaiPlugin\FastEntryBundle\:
-        resource: '../../*'
-        exclude: '../../{DependencyInjection,Entity,Tests,Resources,vendor}'
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+            $dataDirectory: "%kimai.data_dir%"
 
-    KimaiPlugin\FastEntryBundle\Controller\FastEntryController:
-        arguments:
-            $entityManager: '@doctrine.orm.entity_manager'
-            $timesheetRepository: '@App\Repository\TimesheetRepository'
+    KimaiPlugin\FastEntryBundle\:
+        resource: '../../'
+        exclude:
+            - '../../Migrations/'
+            - '../../Resources/'
+            - '../../vendor/'
+            - '../../.github/'
+
+    KimaiPlugin\FastEntryBundle\Controller\:
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
