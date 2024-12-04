@@ -25,7 +25,7 @@
                             </thead>
                             <tbody data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
                                 {% for entry in form.entries %}
-                                    <tr>
+                                    <tr class="entry-group">
                                         <td>{{ form_widget(entry.customer) }}</td>
                                         <td>{{ form_widget(entry.project) }}</td>
                                         <td>{{ form_widget(entry.date) }}</td>
@@ -68,31 +68,75 @@
                 const index = collectionHolder.querySelectorAll('.entry-group').length;
                 const newForm = prototype.replace(/__name__/g, index);
 
-                const tempDiv = document.createElement('tbody');
+                const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = newForm;
-                const newFormRow = tempDiv.querySelector('tr') || tempDiv.firstElementChild;
-
-                if (!newFormRow) {
-                    console.error('New form row not found.');
-                    return;
-                }
-
+                const newFormRow = document.createElement('tr');
                 newFormRow.classList.add('entry-group');
+
+                // Create table cells for each form field
+                tempDiv.querySelectorAll('div').forEach(div => {
+                    const newCell = document.createElement('td');
+                    newCell.innerHTML = div.innerHTML;
+                    newFormRow.appendChild(newCell);
+                });
+
                 // Add the remove button to the last cell
                 const removeCell = document.createElement('td');
                 removeCell.innerHTML = '<button type="button" class="btn btn-danger remove-entry">{% trans %}Remove{% endtrans %}</button>';
                 newFormRow.appendChild(removeCell);
 
                 collectionHolder.appendChild(newFormRow);
+
+                // Add event listeners for the new form row
+                addEventListeners(newFormRow);
+            }
+
+            function addEventListeners(row) {
+                const customerSelect = row.querySelector('select[name$="[customer]"]');
+                const projectSelect = row.querySelector('select[name$="[project]"]');
+
+                if (customerSelect && projectSelect) {
+                    customerSelect.addEventListener('change', function () {
+                        filterProjects(customerSelect, projectSelect);
+                    });
+
+                    projectSelect.addEventListener('change', function () {
+                        if (!customerSelect.value) {
+                            setCustomerFromProject(projectSelect, customerSelect);
+                        }
+                    });
+                }
+
+                row.querySelector('.remove-entry').addEventListener('click', function () {
+                    row.remove();
+                });
+            }
+
+            function filterProjects(customerSelect, projectSelect) {
+                const customerId = customerSelect.value;
+                const options = projectSelect.querySelectorAll('option');
+
+                options.forEach(option => {
+                    if (option.dataset.customerId && option.dataset.customerId !== customerId) {
+                        option.style.display = 'none';
+                    } else {
+                        option.style.display = 'block';
+                    }
+                });
+
+                projectSelect.value = '';
+            }
+
+            function setCustomerFromProject(projectSelect, customerSelect) {
+                const selectedOption = projectSelect.selectedOptions[0];
+                if (selectedOption && selectedOption.dataset.customerId) {
+                    customerSelect.value = selectedOption.dataset.customerId;
+                }
             }
 
             addEntryButton.addEventListener('click', addEntryForm);
 
-            collectionHolder.addEventListener('click', function (event) {
-                if (event.target.classList.contains('remove-entry')) {
-                    event.target.closest('.entry-group').remove();
-                }
-            });
+            collectionHolder.querySelectorAll('.entry-group').forEach(addEventListeners);
         });
     </script>
 {% endblock %}

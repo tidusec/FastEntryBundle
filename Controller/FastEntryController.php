@@ -4,6 +4,7 @@ namespace KimaiPlugin\FastEntryBundle\Controller;
 
 use App\Controller\AbstractController;
 use App\Entity\Timesheet;
+use App\Repository\ActivityRepository;
 use App\Repository\TimesheetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use KimaiPlugin\FastEntryBundle\Form\FastEntryType;
@@ -16,11 +17,13 @@ final class FastEntryController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private TimesheetRepository $timesheetRepository;
+    private ActivityRepository $activityRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, TimesheetRepository $timesheetRepository)
+    public function __construct(EntityManagerInterface $entityManager, TimesheetRepository $timesheetRepository, ActivityRepository $activityRepository)
     {
         $this->entityManager = $entityManager;
         $this->timesheetRepository = $timesheetRepository;
+        $this->activityRepository = $activityRepository;
     }
 
     #[Route(path: '/', name: 'fast_entry', methods: ['GET', 'POST'])]
@@ -32,29 +35,31 @@ final class FastEntryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entriesData = $form->get('entries')->getData();
             $user = $this->getUser();
-        
+            $activity = $this->activityRepository->find(2); // Set activity with ID 2
+
             foreach ($entriesData as $entryData) {
                 $timesheet = new Timesheet();
                 $timesheet->setUser($user);
-        
+
                 // Parse date and duration
                 $begin = $entryData['date'];
                 list($hours, $minutes) = explode(':', $entryData['duration']);
                 $durationInSeconds = ($hours * 3600) + ($minutes * 60);
-        
+
                 $timesheet->setBegin($begin);
                 $timesheet->setDuration($durationInSeconds);
                 $timesheet->setDescription($entryData['description']);
                 $timesheet->setBillable($entryData['billable']);
                 $timesheet->setProject($entryData['project']);
-        
+                $timesheet->setActivity($activity); // Set the activity
+
                 $this->entityManager->persist($timesheet);
             }
-        
+
             $this->entityManager->flush();
-        
+
             $this->addFlash('success', 'Entries have been added successfully.');
-        
+
             return $this->redirectToRoute('fast_entry');
         }
 
