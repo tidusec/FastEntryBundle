@@ -9,39 +9,49 @@
                         <h3 class="card-title">{% trans %}Fast Entry{% endtrans %}</h3>
                     </div>
                     <div class="card-body">
-                        {{ form_start(form) }}
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>{% trans %}Customer{% endtrans %}</th>
-                                    <th>{% trans %}Project{% endtrans %}</th>
-                                    <th>{% trans %}Date{% endtrans %}</th>
-                                    <th>{% trans %}Duration{% endtrans %}</th>
-                                    <th>{% trans %}Description{% endtrans %}</th>
-                                    <th>{% trans %}Billable{% endtrans %}</th>
-                                    <th></th> <!-- Remove button column -->
-                                </tr>
-                            </thead>
-                            <tbody data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
-                                {% for entry in form.entries %}
-                                    <tr class="entry-group">
-                                        <td>{{ form_widget(entry.customer) }}</td>
-                                        <td>{{ form_widget(entry.project) }}</td>
-                                        <td>{{ form_widget(entry.date) }}</td>
-                                        <td>{{ form_widget(entry.duration) }}</td>
-                                        <td>{{ form_widget(entry.description) }}</td>
-                                        <td>{{ form_widget(entry.billable) }}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger remove-entry">Remove</button>
-                                        </td>
+                        {{ form_start(form, {'attr': {'class': 'time-matrix-form'}}) }}
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th width="15%">{% trans %}Customer{% endtrans %}</th>
+                                        <th width="15%">{% trans %}Project{% endtrans %}</th>
+                                        <th width="10%">{% trans %}Date{% endtrans %}</th>
+                                        <th width="10%">{% trans %}Duration{% endtrans %}</th>
+                                        <th width="35%">{% trans %}Description{% endtrans %}</th>
+                                        <th width="5%">{% trans %}Billable{% endtrans %}</th>
+                                        <th width="10%">{% trans %}Actions{% endtrans %}</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="time-entries" data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
+                                    {% for entry in form.entries %}
+                                        <tr class="entry-group">
+                                            <td>{{ form_widget(entry.customer, {'attr': {'class': 'form-control customer-select'}}) }}</td>
+                                            <td>{{ form_widget(entry.project, {'attr': {'class': 'form-control project-select'}}) }}</td>
+                                            <td>{{ form_widget(entry.date, {'attr': {'class': 'form-control'}}) }}</td>
+                                            <td>{{ form_widget(entry.duration, {'attr': {'class': 'form-control'}}) }}</td>
+                                            <td>{{ form_widget(entry.description, {'attr': {'class': 'form-control'}}) }}</td>
+                                            <td class="text-center">{{ form_widget(entry.billable) }}</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-entry">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
 
-                        <button type="button" class="btn btn-secondary mt-3" id="add-entry">{% trans %}Add Entry{% endtrans %}</button>
-                        <button type="submit" class="btn btn-primary mt-3">{% trans %}Submit{% endtrans %}</button>
+                        <div class="form-actions mt-3">
+                            <button type="button" class="btn btn-success" id="add-entry">
+                                <i class="fas fa-plus"></i> {% trans %}Add Entry{% endtrans %}
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans %}Submit{% endtrans %}
+                            </button>
+                        </div>
 
                         {{ form_end(form) }}
                     </div>
@@ -56,87 +66,118 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const addEntryButton = document.getElementById('add-entry');
-            const collectionHolder = document.querySelector('tbody[data-prototype]');
+            const collectionHolder = document.querySelector('.time-entries');
 
             if (!addEntryButton || !collectionHolder) {
-                console.error('Add Entry button or Collection Holder not found.');
+                console.error('Required elements not found');
                 return;
             }
 
             function addEntryForm() {
                 const prototype = collectionHolder.dataset.prototype;
                 const index = collectionHolder.querySelectorAll('.entry-group').length;
-                const newForm = prototype.replace(/__name__/g, index);
-
+                
+                // Create a new row
+                const newRow = document.createElement('tr');
+                newRow.classList.add('entry-group');
+                
+                // Replace prototype placeholders and create cells
+                const formContent = prototype.replace(/__name__/g, index);
                 const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = newForm;
-                const newFormRow = document.createElement('tr');
-                newFormRow.classList.add('entry-group');
+                tempDiv.innerHTML = formContent;
+                
+                // Create cells for each form field
+                const cells = [
+                    createCell(tempDiv, '[customer]', 'form-control customer-select'),
+                    createCell(tempDiv, '[project]', 'form-control project-select'),
+                    createCell(tempDiv, '[date]', 'form-control'),
+                    createCell(tempDiv, '[duration]', 'form-control'),
+                    createCell(tempDiv, '[description]', 'form-control'),
+                    createCell(tempDiv, '[billable]', '', 'text-center'),
+                    createRemoveButtonCell()
+                ];
+                
+                cells.forEach(cell => newRow.appendChild(cell));
+                collectionHolder.appendChild(newRow);
+                
+                // Add event listeners
+                addEventListeners(newRow);
+            }
 
-                // Create table cells for each form field
-                tempDiv.querySelectorAll('div').forEach(div => {
-                    const newCell = document.createElement('td');
-                    newCell.innerHTML = div.innerHTML;
-                    newFormRow.appendChild(newCell);
-                });
+            function createCell(container, fieldNameEnd, className = '', extraClass = '') {
+                const cell = document.createElement('td');
+                if (extraClass) {
+                    cell.className = extraClass;
+                }
+                const field = container.querySelector(`[name$="${fieldNameEnd}"]`);
+                if (field) {
+                    field.className = className;
+                    cell.appendChild(field);
+                }
+                return cell;
+            }
 
-                // Add the remove button to the last cell
-                const removeCell = document.createElement('td');
-                removeCell.innerHTML = '<button type="button" class="btn btn-danger remove-entry">{% trans %}Remove{% endtrans %}</button>';
-                newFormRow.appendChild(removeCell);
-
-                collectionHolder.appendChild(newFormRow);
-
-                // Add event listeners for the new form row
-                addEventListeners(newFormRow);
+            function createRemoveButtonCell() {
+                const cell = document.createElement('td');
+                cell.className = 'text-center';
+                cell.innerHTML = '<button type="button" class="btn btn-danger btn-sm remove-entry"><i class="fas fa-trash"></i></button>';
+                return cell;
             }
 
             function addEventListeners(row) {
-                const customerSelect = row.querySelector('select[name$="[customer]"]');
-                const projectSelect = row.querySelector('select[name$="[project]"]');
+                const customerSelect = row.querySelector('.customer-select');
+                const projectSelect = row.querySelector('.project-select');
+                const removeButton = row.querySelector('.remove-entry');
 
                 if (customerSelect && projectSelect) {
-                    customerSelect.addEventListener('change', function () {
-                        filterProjects(customerSelect, projectSelect);
-                    });
-
-                    projectSelect.addEventListener('change', function () {
+                    customerSelect.addEventListener('change', () => filterProjects(customerSelect, projectSelect));
+                    projectSelect.addEventListener('change', () => {
                         if (!customerSelect.value) {
                             setCustomerFromProject(projectSelect, customerSelect);
                         }
                     });
                 }
 
-                row.querySelector('.remove-entry').addEventListener('click', function () {
-                    row.remove();
-                });
+                if (removeButton) {
+                    removeButton.addEventListener('click', () => row.remove());
+                }
             }
 
+            // Existing filter and customer setting functions remain the same
             function filterProjects(customerSelect, projectSelect) {
                 const customerId = customerSelect.value;
-                const options = projectSelect.querySelectorAll('option');
-
-                options.forEach(option => {
-                    if (option.dataset.customerId && option.dataset.customerId !== customerId) {
-                        option.style.display = 'none';
-                    } else {
-                        option.style.display = 'block';
-                    }
+                projectSelect.querySelectorAll('option').forEach(option => {
+                    option.style.display = (!option.dataset.customerId || option.dataset.customerId === customerId) ? '' : 'none';
                 });
-
                 projectSelect.value = '';
             }
 
             function setCustomerFromProject(projectSelect, customerSelect) {
                 const selectedOption = projectSelect.selectedOptions[0];
-                if (selectedOption && selectedOption.dataset.customerId) {
+                if (selectedOption?.dataset.customerId) {
                     customerSelect.value = selectedOption.dataset.customerId;
                 }
             }
 
+            // Initialize
             addEntryButton.addEventListener('click', addEntryForm);
-
             collectionHolder.querySelectorAll('.entry-group').forEach(addEventListeners);
         });
     </script>
+
+    <style>
+        .time-matrix-form .form-control {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.9rem;
+        }
+        .time-matrix-form .btn-sm {
+            padding: 0.25rem 0.5rem;
+        }
+        .time-entries td {
+            vertical-align: middle;
+        }
+        .time-matrix-form select.form-control {
+            width: 100%;
+        }
+    </style>
 {% endblock %}
