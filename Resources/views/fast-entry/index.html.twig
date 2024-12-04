@@ -10,49 +10,89 @@
                     </div>
                     <div class="card-body">
                         {{ form_start(form) }}
-                        <div data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
-                            {% for entry in form.entries %}
-                                <div class="entry-group">
-                                    {{ form_row(entry.customer) }}
-                                    {{ form_row(entry.project) }}
-                                    {{ form_row(entry.activity) }}
-                                    {{ form_row(entry.duration) }}
-                                    {{ form_row(entry.description) }}
-                                    {{ form_row(entry.billable) }}
-                                    <button type="button" class="btn btn-danger remove-entry">Remove</button>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <button type="button" class="btn btn-secondary" id="add-entry">{% trans %}Add Entry{% endtrans %}</button>
-                        <button type="submit" class="btn btn-primary">{% trans %}Submit{% endtrans %}</button>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans %}Customer{% endtrans %}</th>
+                                    <th>{% trans %}Project{% endtrans %}</th>
+                                    <th>{% trans %}Date{% endtrans %}</th>
+                                    <th>{% trans %}Duration{% endtrans %}</th>
+                                    <th>{% trans %}Description{% endtrans %}</th>
+                                    <th>{% trans %}Billable{% endtrans %}</th>
+                                    <th></th> <!-- Remove button column -->
+                                </tr>
+                            </thead>
+                            <tbody data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
+                                {% for entry in form.entries %}
+                                    <tr class="entry-group">
+                                        <td>{{ form_widget(entry.customer) }}</td>
+                                        <td>{{ form_widget(entry.project) }}</td>
+                                        <td>{{ form_widget(entry.date) }}</td>
+                                        <td>{{ form_widget(entry.duration) }}</td>
+                                        <td>{{ form_widget(entry.description) }}</td>
+                                        <td>{{ form_widget(entry.billable) }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger remove-entry">{% trans %}Remove{% endtrans %}</button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <button type="button" class="btn btn-secondary mt-3" id="add-entry">{% trans %}Add Entry{% endtrans %}</button>
+                        <button type="submit" class="btn btn-primary mt-3">{% trans %}Submit{% endtrans %}</button>
+
                         {{ form_end(form) }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
 
-    {% block javascripts %}
-        {{ parent() }}
-        <script>
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             const addEntryButton = document.getElementById('add-entry');
-            const collectionHolder = document.querySelector('[data-prototype]');
+            const collectionHolder = document.querySelector('tbody[data-prototype]');
 
-            addEntryButton.addEventListener('click', function() {
+            if (!addEntryButton || !collectionHolder) {
+                console.error('Add Entry button or Collection Holder not found.');
+                return;
+            }
+
+            function addEntryForm() {
                 const prototype = collectionHolder.dataset.prototype;
                 const index = collectionHolder.querySelectorAll('.entry-group').length;
                 const newForm = prototype.replace(/__name__/g, index);
-                const entryGroup = document.createElement('div');
-                entryGroup.classList.add('entry-group');
-                entryGroup.innerHTML = newForm + '<button type="button" class="btn btn-danger remove-entry">Remove</button>';
-                collectionHolder.appendChild(entryGroup);
-            });
 
-            collectionHolder.addEventListener('click', function(event) {
+                const tempDiv = document.createElement('tbody');
+                tempDiv.innerHTML = newForm;
+                const newFormRow = tempDiv.querySelector('tr') || tempDiv.firstElementChild;
+
+                if (!newFormRow) {
+                    console.error('New form row not found.');
+                    return;
+                }
+
+                newFormRow.classList.add('entry-group');
+                // Add the remove button to the last cell
+                const removeCell = document.createElement('td');
+                removeCell.innerHTML = '<button type="button" class="btn btn-danger remove-entry">{% trans %}Remove{% endtrans %}</button>';
+                newFormRow.appendChild(removeCell);
+
+                collectionHolder.appendChild(newFormRow);
+            }
+
+            addEntryButton.addEventListener('click', addEntryForm);
+
+            collectionHolder.addEventListener('click', function (event) {
                 if (event.target.classList.contains('remove-entry')) {
-                    event.target.parentElement.remove();
+                    event.target.closest('.entry-group').remove();
                 }
             });
-        </script>
-    {% endblock %}
+        });
+    </script>
 {% endblock %}

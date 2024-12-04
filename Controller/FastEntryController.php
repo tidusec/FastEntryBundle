@@ -37,11 +37,10 @@ final class FastEntryController extends AbstractController
             foreach ($entriesData as $entryData) {
                 $timesheet = new Timesheet();
                 $timesheet->setUser($user);
-                $timesheet->setBegin(new \DateTime()); // Adjust as needed
+                $timesheet->setBegin(new \DateTime($entryData['data'])); // Adjust as needed
                 $timesheet->setDuration($entryData['duration'] * 60); // Duration in seconds
                 $timesheet->setDescription($entryData['description']);
                 $timesheet->setBillable($entryData['billable']);
-                $timesheet->setActivity($entryData['activity']);
                 $timesheet->setProject($entryData['project']);
 
                 $this->entityManager->persist($timesheet);
