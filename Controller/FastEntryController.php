@@ -37,6 +37,7 @@ final class FastEntryController extends AbstractController
             $user = $this->getUser();
             $activity = $this->activityRepository->find(2); // Set activity with ID 2
 
+            
             foreach ($entriesData as $entryData) {
                 $timesheet = new Timesheet();
                 $timesheet->setUser($user);
@@ -46,12 +47,17 @@ final class FastEntryController extends AbstractController
                 list($hours, $minutes) = explode(':', $entryData['duration']);
                 $durationInSeconds = ($hours * 3600) + ($minutes * 60);
 
+                // Calculate end time by adding duration to begin time
+                $end = clone $begin;
+                $end->modify('+' . $durationInSeconds . ' seconds');
+
                 $timesheet->setBegin($begin);
+                $timesheet->setEnd($end);  // Set the end time
                 $timesheet->setDuration($durationInSeconds);
                 $timesheet->setDescription($entryData['description']);
                 $timesheet->setBillable($entryData['billable']);
                 $timesheet->setProject($entryData['project']);
-                $timesheet->setActivity($activity); // Set the activity
+                $timesheet->setActivity($activity);
 
                 $this->entityManager->persist($timesheet);
             }
