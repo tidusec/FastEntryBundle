@@ -30,26 +30,31 @@ final class FastEntryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Process the submitted data and create timesheet entries
             $entriesData = $form->get('entries')->getData();
             $user = $this->getUser();
-
+        
             foreach ($entriesData as $entryData) {
                 $timesheet = new Timesheet();
                 $timesheet->setUser($user);
-                $timesheet->setBegin(new \DateTime($entryData['data'])); // Adjust as needed
-                $timesheet->setDuration($entryData['duration'] * 60); // Duration in seconds
+        
+                // Parse date and duration
+                $begin = $entryData['date'];
+                list($hours, $minutes) = explode(':', $entryData['duration']);
+                $durationInSeconds = ($hours * 3600) + ($minutes * 60);
+        
+                $timesheet->setBegin($begin);
+                $timesheet->setDuration($durationInSeconds);
                 $timesheet->setDescription($entryData['description']);
                 $timesheet->setBillable($entryData['billable']);
                 $timesheet->setProject($entryData['project']);
-
+        
                 $this->entityManager->persist($timesheet);
             }
-
+        
             $this->entityManager->flush();
-
+        
             $this->addFlash('success', 'Entries have been added successfully.');
-
+        
             return $this->redirectToRoute('fast_entry');
         }
 

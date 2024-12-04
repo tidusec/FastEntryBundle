@@ -19,15 +19,11 @@ class FastEntryItemType extends AbstractType
             ->add('project', ProjectType::class)
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
-                'html5' => false,
-                'required' => true,
-                'format' => \IntlDateFormatter::SHORT,
-            ])
-            ->add('duration', TimeType::class, [
-                'label' => 'Duration (hours:minutes)',
-                'input' => 'datetime',
-                'widget' => 'single_text',
                 'html5' => true,
+                'required' => true,
+            ])
+            ->add('duration', TextType::class, [
+                'label' => 'Duration (hours:minutes)',
                 'required' => true,
             ])
             ->add('description', TextType::class)

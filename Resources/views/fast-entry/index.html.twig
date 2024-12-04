@@ -25,7 +25,7 @@
                             </thead>
                             <tbody data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
                                 {% for entry in form.entries %}
-                                    <tr class="entry-group">
+                                    <tr>
                                         <td>{{ form_widget(entry.customer) }}</td>
                                         <td>{{ form_widget(entry.project) }}</td>
                                         <td>{{ form_widget(entry.date) }}</td>
@@ -33,7 +33,7 @@
                                         <td>{{ form_widget(entry.description) }}</td>
                                         <td>{{ form_widget(entry.billable) }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-danger remove-entry">{% trans %}Remove{% endtrans %}</button>
+                                            <button type="button" class="btn btn-danger remove-entry">Remove</button>
                                         </td>
                                     </tr>
                                 {% endfor %}
